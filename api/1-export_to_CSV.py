@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-"""Return to-do list for a given employee ID in CSV format"""
+"""Export data in the CSV format"""
 import requests
 import sys
 import pandas as pd
