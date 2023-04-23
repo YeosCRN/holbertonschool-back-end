@@ -1,24 +1,35 @@
 #!/usr/bin/python3
 """Export data in the CSV format"""
+import csv
 import requests
-import sys
-import pandas as pd
+from sys import argv
 
-if __name__ == "__main__":
-    api_url = "https://jsonplaceholder.typicode.com/"
-    user = requests.get(api_url + "users/{}".format(sys.argv[1])).json()
-    todos = requests.get(
-        api_url + "todos", params={"userId": sys.argv[1]}).json()
+if __name__ == '__main__':
+    API_URL = 'https://jsonplaceholder.typicode.com'
 
-    tasks_df = pd.DataFrame(
-        todos, columns=["userId", "id", "title", "completed"])
+    user_id = argv[1]
+    response = requests.get(
+        f'{API_URL}/users/{user_id}/todos',
+        params={'_expand': 'user'}
+    )
 
-    user_df = pd.DataFrame(data=[user], columns=[
-        "id", "name", "username", "email", "address",
-        "phone", "website", "company"])
+    if response.status_code == 200:
+        data = response.json()
+        EMPLOYEE_NAME = data[0]['user']['username']
+        fn_task = [task for task in data if task['completed']]
 
-    merged_df = pd.merge(tasks_df, user_df, on="id", how="outer")[
-        ["id", "username", "completed", "title"]]
+        with open(f'{user_id}.csv', 'w',
+                  encoding='utf-8', newline='') as file:
+            wr = csv.writer(file, quoting=csv.QUOTE_ALL)
 
-    filename = str(user.get("git")) + ".csv"
-    merged_df.to_csv(filename, index=False)
+            for task in data:
+                wr.writerow(
+                    [
+                        f'{user_id}',
+                        f'{EMPLOYEE_NAME}',
+                        f'{task["completed"]}',
+                        f'{task["title"]}'
+                    ]
+                )
+    else:
+        print(f'Error: {response.status_code}')
