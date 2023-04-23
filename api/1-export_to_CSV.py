@@ -14,7 +14,8 @@ if __name__ == "__main__":
         todos, columns=["userId", "id", "title", "completed"])
 
     user_df = pd.DataFrame(data=[user], columns=[
-                           "id", "name", "username", "email", "address", "phone", "website", "company"])
+                           "id", "name", "username", "email",
+                           "address", "phone", "website", "company"])
 
     merged_df = pd.merge(tasks_df, user_df, on="id", how="outer")[
         ["id", "username", "completed", "title"]]
